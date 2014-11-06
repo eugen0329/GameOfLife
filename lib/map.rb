@@ -19,15 +19,17 @@ module Lifegame
     end
   
     def change_gen
-      @last.each.with_index do |line, i|
-        line.each.with_index do |_,j| 
-          neighborsCount = get_neighbors_count(i, j)
-          if neighborsCount == 3
-            @curr[i][j].revive
-          elsif ! neighborsCount.between?(2,3)
-            @curr[i][j].kill
+      @last.each_with_index do |line, i|
+        line.each_index do |j| 
+
+          neighbors_count = get_neighbors_count(i, j)
+          if neighbors_count.between?(2,3)
+            @curr[i][j].set_stat(1) if neighbors_count == 3 
+            @curr[i][j].inc_age
+          else
+            @curr[i][j].set_stat(0)
           end
-          @curr[i][j].inc_age
+
         end
       end
   

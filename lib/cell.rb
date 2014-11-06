@@ -17,16 +17,15 @@ module Lifegame
     end
   
     def inc_age
-      @age += 1 
+      @age += 1 if @age < COLOR_ORDER.count - 1
     end
   
-    def revive
-      @stat = 1  
+    def set_stat(new_stat)
+      unless @stat == new_stat
+        @stat = new_stat
+        @age = 0
+      end
     end
-  
-    def kill 
-      @stat = 0
-      @age  = 0
-    end
+
   end
 end
