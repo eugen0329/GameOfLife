@@ -12,7 +12,7 @@ module Lifegame
       @age  = age
     end
   
-    def view
+    def to_s
       @stat == 1 ? "▪".colorize(COLOR_ORDER[@age]) : " "
     end
   
@@ -20,7 +20,7 @@ module Lifegame
       @age += 1 if @age < COLOR_ORDER.count - 1
     end
   
-    def set_stat(new_stat)
+    def stat=(new_stat)
       unless @stat == new_stat
         @stat = new_stat
         @age = 0

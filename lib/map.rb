@@ -1,4 +1,3 @@
-require  "terminfo"
 require_relative "cell"
 
 module Lifegame
@@ -6,15 +5,16 @@ module Lifegame
   
   class Map
     attr_accessor :curr, :last
+    NEIGHBORS = [ [-1, -1], [-1, 0], [-1, 1],
+                  [ 0, -1],          [ 0, 1],
+                  [ 1, -1], [ 1, 0], [ 1, 1] ]
   
-    DEFAULT_SIZE = Coordinates.new(*TermInfo.screen_size)
-  
-    def initialize(size = DEFAULT_SIZE)
+    def initialize(y, x)
       @last = []
-      DEFAULT_SIZE.y.times do |_|
-        @last << Array.new(DEFAULT_SIZE.x) { Cell.new([*0..1].sample) }
+      @size = Coordinates.new(y, x)
+      @size.y.times do 
+        @last << Array.new(@size.x) { Cell.new(rand(0..1)) }
       end
-      @size = size
       @curr = @last.map { |line| line.map(&:dup) }
     end
   
@@ -24,10 +24,10 @@ module Lifegame
 
           neighbors_count = get_neighbors_count(i, j)
           if neighbors_count.between?(2,3)
-            @curr[i][j].set_stat(1) if neighbors_count == 3 
+            @curr[i][j].stat = 1 if neighbors_count == 3 
             @curr[i][j].inc_age
           else
-            @curr[i][j].set_stat(0)
+            @curr[i][j].stat = 0
           end
 
         end
@@ -36,20 +36,17 @@ module Lifegame
       @last = @curr.map { |line| line.map(&:dup) }
     end
 
-    def get_neighbors_count(pos_y, pos_x)
-      pos_y == 0           ? (up    = @size.y - 1) : (up    = pos_y - 1)
-      pos_y == @size.y - 1 ? (down  = 0)           : (down  = pos_y + 1)
-      pos_x == @size.x - 1 ? (right = 0)           : (right = pos_x + 1)
-      pos_x == 0           ? (left  = @size.x - 1) : (left  = pos_x - 1)
-  
-      return @last[up][left].stat    + @last[up][pos_x].stat    + @last[up][right].stat +
-             @last[pos_y][left].stat + @last[pos_y][right].stat + 
-             @last[down][left].stat  + @last[down][pos_x].stat  + @last[down][right].stat
+    def get_neighbors_count(y, x)
+      NEIGHBORS.map do |dy,dx| 
+        i = (y + dy) % @size.y
+        j = (x + dx) % @size.x
+        @last[i][j].stat 
+      end.inject(:+)
     end
-  
+
     def disp
       @curr.each do |line|
-        puts line.map(&:view).join
+        puts line.map(&:to_s).join
       end
     end
 
